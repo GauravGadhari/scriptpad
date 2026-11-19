@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ScriptPad
 
-## Getting Started
+> A dedicated, Apple-grade YouTube script writing web app built for creators who record to their own scripts. Featuring block-level camera angle direction, curved margin brackets for narrative labeling, persistent browser storage, and an all-scripts dashboard.
 
-First, run the development server:
+---
+
+## ✨ Features
+
+- **Apple-Grade White Aesthetic**: Pure `#FFFFFF` background, native SF Pro typography, zero AI UI slop.
+- **Block-Level Camera Direction (Shot Colors)**:
+  - Talking Head (Camera A)
+  - B-Roll / Voiceover
+  - Screen / Visual Demo
+  - Emphasis / Key Quote
+  - Camera B (Tight Angle)
+  - Stage Notes & Directions
+- **Ruled Notebook Baseline Grid**: Notebook-style ruled baselines on lines and empty paragraphs.
+- **Narrative Script Labels & Curved Margin Brackets**: Select any sentence or block and tag it (Hook, Story Arc, Core Thesis, Tension / Climax, Call to Action) with smooth curved bezier bracket lines pointing out to the right margin with zero text overlap.
+- **Rich Media & Content**: Paste images directly with clipboard `⌘V`, embed links, toggle H1/H2 acts and scenes.
+- **Touch-Optimized Mobile View**: Compact `[Shots]` popover menu that prevents pill overflow on mobile viewports.
+- **All Scripts Dashboard**: Multi-script library with automatic first-image thumbnail extraction and word-count duration estimates (~150 wpm).
+- **IndexedDB Storage Persistence**: Permanent local persistence across browser sessions.
+- **Markdown Export**: One-click export to annotated `.md` files.
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- npm
+
+### Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/GauravGadhari/scriptpad.git
+cd scriptpad
+
+# Install dependencies
+npm install
+
+# Run the development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) (or the port indicated in terminal) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Production Build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm run start
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🛠️ Tech Stack
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Framework**: Next.js 15+ (App Router)
+- **Editor Engine**: Tiptap 2 (ProseMirror core)
+- **State Management**: Zustand
+- **Database**: IndexedDB (`idb`)
+- **Typography**: SF Pro Display & SF Pro Text
+- **Styling**: Tailwind CSS
