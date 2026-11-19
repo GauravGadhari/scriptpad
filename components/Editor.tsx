@@ -40,6 +40,17 @@ export function Editor({ onExportReady }: EditorProps) {
   const [isLabelDialogOpen, setIsLabelDialogOpen] = useState(false);
   const editorContainerRef = useRef<HTMLDivElement>(null);
 
+  // Debounce refs — keep stable across renders without triggering re-renders
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const latestTitleRef = useRef(title);
+  const latestShotPaletteRef = useRef(shotPalette);
+  const latestScriptIdRef = useRef(currentScriptId);
+
+  // Keep refs in sync with latest store values without rebuilding the editor
+  useEffect(() => { latestTitleRef.current = title; }, [title]);
+  useEffect(() => { latestShotPaletteRef.current = shotPalette; }, [shotPalette]);
+  useEffect(() => { latestScriptIdRef.current = currentScriptId; }, [currentScriptId]);
+
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -131,30 +142,42 @@ export function Editor({ onExportReady }: EditorProps) {
       },
     },
     onUpdate: ({ editor }) => {
-      const text = editor.getText();
-      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-      setWordCount(words);
+      // Cancel any pending save timer — debounce all work to after 600ms of idle
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
 
-      // Persistent auto-save to IndexedDB
-      if (currentScriptId) {
-        const json = editor.getJSON();
-        const { thumbnail, previewText } = extractThumbnailAndPreview(json);
-        const durationString = computeDuration(words);
+      saveTimerRef.current = setTimeout(() => {
+        const text = editor.getText();
+        const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+        setWordCount(words);
 
-        saveScript({
-          id: currentScriptId,
-          title,
-          content: json,
-          thumbnail,
-          previewText,
-          wordCount: words,
-          durationString,
-          shotPalette,
-          createdAt: Date.now(),
-        }).catch((err) => console.error("Auto-save failed:", err));
-      }
+        const scriptId = latestScriptIdRef.current;
+        if (scriptId) {
+          const json = editor.getJSON();
+          const { thumbnail, previewText } = extractThumbnailAndPreview(json);
+          const durationString = computeDuration(words);
+
+          saveScript({
+            id: scriptId,
+            title: latestTitleRef.current,
+            content: json,
+            thumbnail,
+            previewText,
+            wordCount: words,
+            durationString,
+            shotPalette: latestShotPaletteRef.current,
+            createdAt: Date.now(),
+          }).catch((err) => console.error("Auto-save failed:", err));
+        }
+      }, 600);
     },
   });
+
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+  }, []);
 
   // Load active script from IndexedDB whenever currentScriptId changes
   useEffect(() => {

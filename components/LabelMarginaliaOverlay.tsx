@@ -73,11 +73,35 @@ export function LabelMarginaliaOverlay({
 
     updatePositions();
 
-    const interval = setInterval(updatePositions, 300);
+    // MutationObserver: re-measure only when the DOM inside the editor actually changes
+    // (label spans added/removed, text nodes mutated). Much cheaper than 300ms polling.
+    let rafId: ReturnType<typeof requestAnimationFrame> | null = null;
+    const scheduleUpdate = () => {
+      if (rafId) return; // coalesce rapid mutations into one rAF
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        updatePositions();
+      });
+    };
+
+    const observer = new MutationObserver(scheduleUpdate);
+    if (containerRef.current) {
+      observer.observe(containerRef.current, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["data-label-id", "data-label-name", "data-label-color"],
+      });
+    }
+
+    // Slow interval as a safety net for position drift (scroll, resize, layout shift)
+    const interval = setInterval(updatePositions, 2000);
     window.addEventListener("resize", updatePositions);
     window.addEventListener("scroll", updatePositions, true);
 
     return () => {
+      observer.disconnect();
+      if (rafId) cancelAnimationFrame(rafId);
       clearInterval(interval);
       window.removeEventListener("resize", updatePositions);
       window.removeEventListener("scroll", updatePositions, true);
